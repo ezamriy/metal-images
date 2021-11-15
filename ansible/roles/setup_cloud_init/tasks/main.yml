@@ -1,0 +1,47 @@
+---
+- name: Install cloud-init
+  dnf:
+    name:
+      - cloud-init
+      - cloud-utils-growpart
+      - dracut-config-generic
+      - gdisk
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Enable cloud-init services
+  service:
+    name: "{{ item }}"
+    enabled: true
+  with_items:
+    - cloud-config
+    - cloud-init
+    - cloud-init-local
+    - cloud-final
+
+- name: Configure Equinix Metal datasource
+  copy:
+    src: 91-equinix_datasource.cfg
+    dest: /etc/cloud/cloud.cfg.d/91-equinix_datasource.cfg
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Enable root login
+  lineinfile:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^disable_root:'
+    line: 'disable_root: 0'
+
+- name: Enable Ec2 metadata
+  lineinfile:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^\s+-\s+disable-ec2-metadata'
+    state: absent
+
+- name: Configure cloud-init user name
+  replace:
+    dest: /etc/cloud/cloud.cfg
+    regexp: '^(\s+name:).*$'
+    replace: "\\1 {{ cloud_init_user }}"
+  when: cloud_init_user | length > 0

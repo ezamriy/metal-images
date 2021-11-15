@@ -1,0 +1,9 @@
+---
+- name: AlmaLinux Equinix Metal
+  hosts: default
+  become: true
+
+  roles:
+    - name: setup_cloud_init
+      #cloud_init_user: tinkerbell
+    - cleanup_vm
