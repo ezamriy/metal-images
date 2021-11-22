@@ -59,7 +59,12 @@ source "qemu" "almalinux-8-equinix-aarch64" {
   memory             = var.memory
   vm_name            = "almalinux-8-equinix-aarch64"
   boot_wait          = var.boot_wait
-  boot_command       = var.alma_boot_command_aarch64
+  boot_command       = [
+    "e<wait><down><down><leftCtrlOn>e<leftCtrlOff><bs><bs><bs><bs><bs>",
+    "inst.text net.ifnames=1 ",
+    "inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/almalinux-8.${var.partition_scheme}.ks",
+    "<leftCtrlOn>x<leftCtrlOff>"
+  ]
   vnc_bind_address   = var.vnc_bind_address
   vnc_port_min       = var.vnc_port_min
   vnc_port_max       = var.vnc_port_max
