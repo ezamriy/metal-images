@@ -1,0 +1,34 @@
+---
+- name: Find persistent-net.rules
+  find:
+    paths: /etc/udev/rules.d
+    patterns: 70*
+  register: net_rules
+
+- name: Delete persistent-net.rules
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ net_rules.files }}"
+
+- name: Configure /etc/sysconfig/network
+  lineinfile:
+    path: /etc/sysconfig/network
+    line: "{{ item }}"
+  with_items:
+    - NETWORKING=yes
+    - NOZEROCONF=yes
+
+- name: Disable virtual terminals allocation by logind
+  replace:
+    path: '/etc/systemd/logind.conf'
+    regexp: '^#?NAutoVTs=\d+'
+    replace: 'NAutoVTs=0'
+
+- name: Empty /etc/resolv.conf
+  command: truncate -s 0 /etc/resolv.conf
+
+- name: Delete root password
+  user:
+    name: root
+    password: '!!'

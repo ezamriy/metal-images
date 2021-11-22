@@ -19,13 +19,13 @@
     - cloud-init-local
     - cloud-final
 
-- name: Configure Equinix Metal datasource
-  copy:
-    src: 91-equinix_datasource.cfg
-    dest: /etc/cloud/cloud.cfg.d/91-equinix_datasource.cfg
-    owner: root
-    group: root
-    mode: 0644
+#- name: Configure Equinix Metal datasource
+#  copy:
+#    src: 91-equinix_datasource.cfg
+#    dest: /etc/cloud/cloud.cfg.d/91-equinix_datasource.cfg
+#    owner: root
+#    group: root
+#    mode: 0644
 
 - name: Enable root login
   lineinfile:

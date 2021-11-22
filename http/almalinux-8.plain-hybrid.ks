@@ -2,9 +2,9 @@
 # Special thanks to CentOS Cloud SIG for the partitioning example:
 #   https://github.com/CentOS/sig-cloud-instance-build/blob/master/cloudimg/CentOS-8-x86_64-Azure.ks
 
-url --url https://repo.almalinux.org/almalinux/8/BaseOS/x86_64/kickstart/
-repo --name=BaseOS --baseurl=https://repo.almalinux.org/almalinux/8/BaseOS/x86_64/os/
-repo --name=AppStream --baseurl=https://repo.almalinux.org/almalinux/8/AppStream/x86_64/os/
+url --url https://repo.almalinux.org/almalinux/8/BaseOS/$basearch/kickstart/
+repo --name=BaseOS --baseurl=https://repo.almalinux.org/almalinux/8/BaseOS/$basearch/os/
+repo --name=AppStream --baseurl=https://repo.almalinux.org/almalinux/8/AppStream/$basearch/os/
 
 text
 skipx
@@ -20,18 +20,13 @@ firewall --disabled
 services --disabled="kdump" --enabled="chronyd,rsyslog,sshd"
 selinux --enforcing
 
-bootloader --append="console=tty0 console=ttyS1,115200n8 earlyprintk=ttyS1,115200 rootdelay=300 rd.auto rd.auto=1" --location=mbr --timeout=1
+bootloader --location=mbr --timeout=1 --append="console=tty0 console=ttyS1,115200n8 earlyprintk=ttyS1,115200 rootdelay=300 biosdevname=0"
 zerombr
-bootloader --location=mbr --timeout=1
 part /boot/efi --onpart=vda15 --fstype=vfat
 part /boot --fstype="xfs" --size=500
 part / --fstype="xfs" --size=1 --grow --asprimary
 
-#clearpart --all --initlabel --disklabel=gpt
-#autopart --type=plain --noboot --nohome --noswap --fstype=xfs
-
 rootpw --plaintext tinkerbell
-user --name=tinkerbell --plaintext --password tinkerbell
 
 reboot --eject
 
@@ -70,10 +65,6 @@ sgdisk --typecode=15:EF00 /dev/vda
 
 
 %post --log=/var/log/anaconda/post-install.log --erroronfail
-# allow tinkerbell user to run everything without a password
-echo "tinkerbell     ALL=(ALL)     NOPASSWD: ALL" >> /etc/sudoers.d/tinkerbell
-sed -i "s/^.*requiretty/# Defaults requiretty/" /etc/sudoers
-
 echo 'GRUB_TERMINAL="serial console"' >> /etc/default/grub
 echo 'GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"' >> /etc/default/grub
 

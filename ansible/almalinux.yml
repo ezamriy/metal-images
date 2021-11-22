@@ -4,6 +4,5 @@
   become: true
 
   roles:
-    - name: setup_cloud_init
-      #cloud_init_user: tinkerbell
+    - metal_guest
     - cleanup_vm
